@@ -1,39 +1,39 @@
-# mishwar-driver1_3
 
-مشروع Android Kotlin أُنشئ بـ KlencodIDE.
+name: Android CI
 
-## القالب: لوحة رسم بسيطة 🎨
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
 
-### الميزات
-- رسم بالإصبع (Canvas + Path)
-- 8 ألوان + 3 سماكات فرشاة
-- تراجع (Undo) + مسح الكل
-- حفظ PNG في Pictures/KlencodDrawings (Android 10+)
-- كل المنطق في ملف MainActivity.kt واحد
-- لا مكتبات خارجية (فقط kotlin-stdlib)
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-### البناء
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
 
-يتم البناء تلقائياً على GitHub Actions عند الضغط على "بناء APK" من داخل التطبيق.
+      - name: Setup JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-### الهيكل
-- `app/src/main/java/` — كود Kotlin (MainActivity.kt فقط)
-- `app/src/main/res/` — الموارد (strings.xml + app_icon.png)
-- `app/src/main/AndroidManifest.xml` — بيان التطبيق
-- `app/module.toml` — إعدادات الوحدة
+      - name: Check project files
+        run: |
+          ls -la
+          find . -name gradlew -o -name settings.gradle -o -name settings.gradle.kts
 
-### التوسيعات المقترحة
-- 🧹 ممحاة (Eraser)
-- ↪️ إعادة (Redo)
-- 📤 مشاركة الصورة
-- 🎨 منتقي ألوان HSL
-- 🌐 شبكة خلفية
+      - name: Build APK
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
 
-### Kotlin idiom
-
-هذا القالب يستخدم:
-- `data class` للـ Stroke
-- `when` بدل `switch`
-- `?.` و `?:` لـ Null safety
-- `mutableListOf` بدل `ArrayList`
-- Top-level functions داخل `object`
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Mishwar-Driver-APK
+          path: app/build/outputs/apk/debug/*.apk
